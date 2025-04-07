@@ -1,0 +1,8 @@
+fastapi 
+uvicorn[standard] 
+scikit-learn 
+tensorflow # or pytorch 
+pandas 
+joblib 
+nltk 
+spacy 
