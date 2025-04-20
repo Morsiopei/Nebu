@@ -1,0 +1,266 @@
+openapi: 3.0.3
+info:
+  title: Multifaceted AI Assistant API
+  description: API specification for the integrated AI assistant application covering finance, health, education, and personal assistance.
+  version: 0.1.0
+servers:
+  - url: http://localhost:8000/api
+    description: Local development server (via API Gateway)
+  # - url: https://production.yourapi.com/api
+  #   description: Production server
+
+tags:
+  - name: Authentication
+    description: User registration, login, and token management (Auth Service)
+  - name: Finance - Accounts
+    description: Managing linked financial accounts (Finance Service)
+  - name: Finance - Transactions
+    description: Accessing financial transactions (Finance Service)
+  - name: Plaid Integration
+    description: Endpoints for Plaid Link flow (Finance Service)
+  # Add tags for Health, Education, Assistant, AI Core
+
+paths:
+  /auth/register/:
+    post:
+      tags: [Authentication]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid input data
+  /auth/token/:
+    post:
+      tags: [Authentication]
+      summary: Obtain JWT access and refresh tokens
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCredentials'
+      responses:
+        '200':
+          description: Tokens obtained successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPair'
+        '401':
+          description: Invalid credentials
+  /auth/token/refresh/:
+     post:
+      tags: [Authentication]
+      summary: Refresh JWT access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh:
+                  type: string
+              required: [refresh]
+      responses:
+        '200':
+          description: Access token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+        '401':
+          description: Invalid or expired refresh token
+
+  /finance/accounts/:
+    get:
+      tags: [Finance - Accounts]
+      summary: List linked financial accounts for the user
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: A list of accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+        '401':
+          description: Unauthorized
+
+  /finance/transactions/:
+    get:
+      tags: [Finance - Transactions]
+      summary: List financial transactions for the user
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+          description: Filter transactions by account ID
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Filter transactions from this date (YYYY-MM-DD)
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: Filter transactions up to this date (YYYY-MM-DD)
+        # Add pagination parameters if using standard pagination
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page number for pagination
+        - name: page_size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20 # Match DRF setting
+          description: Number of results per page
+      responses:
+        '200':
+          description: A paginated list of transactions
+          content:
+            application/json:
+              schema:
+                 # Define pagination structure if needed
+                 type: object
+                 properties:
+                   count:
+                     type: integer
+                   next:
+                     type: string
+                     nullable: true
+                   previous:
+                     type: string
+                     nullable: true
+                   results:
+                     type: array
+                     items:
+                       $ref: '#/components/schemas/Transaction'
+        '401':
+          description: Unauthorized
+
+  # --- Add paths for Plaid, other services, AI Core ---
+
+components:
+  schemas:
+    UserRegistration:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    User:
+      type: object
+      properties:
+        id:
+          type: integer # Or string/uuid depending on your model
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+    LoginCredentials:
+      type: object
+      required: [username, password] # Or email/password
+      properties:
+        username: # Or email
+          type: string
+        password:
+          type: string
+          format: password
+    TokenPair:
+      type: object
+      properties:
+        access:
+          type: string
+        refresh:
+          type: string
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        mask:
+          type: string
+          nullable: true
+        account_type:
+          type: string
+        account_subtype:
+          type: string
+        current_balance:
+          type: number
+          format: float
+          nullable: true
+        # Add other Account fields from serializer
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        account_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: float
+        description:
+          type: string
+          nullable: true
+        merchant_name:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        date:
+          type: string
+          format: date
+        # Add other Transaction fields from serializer
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT # Optional, just informative
