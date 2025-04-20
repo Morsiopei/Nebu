@@ -3,7 +3,7 @@
 
 ## Overview
 
-This application is a comprehensive AI-powered assistant designed to help users manage various aspects of their lives, including finance, health, education, and personal tasks. It aims to provide a seamless, integrated experience leveraging AI for personalized insights and automation.
+This application is a comprehensive AI-powered assistant designed to help users manage various aspects of their lives, including finance, health,  education, and personal tasks. It aims to provide a seamless, integrated experience leveraging AI for personalized insights and automation.
 
 ## Features
 
@@ -24,6 +24,7 @@ This application is a comprehensive AI-powered assistant designed to help users 
 
 ## Project Structure
 
+```
 multifaceted-ai-app/
 ├── services/       # Backend Microservices (auth, finance, health, etc.)
 ├── frontend/       # React Frontend Application
@@ -32,6 +33,7 @@ multifaceted-ai-app/
 ├── .env.example    # Environment variable template
 ├── docker-compose.yml # Local Docker setup
 └── README.md       # This file
+```
 
 ## Setup Instructions (Local Development)
 
