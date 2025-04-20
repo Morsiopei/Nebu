@@ -24,7 +24,6 @@ This application is a comprehensive AI-powered assistant designed to help users 
 
 ## Project Structure
 
-```
 multifaceted-ai-app/
 ├── services/       # Backend Microservices (auth, finance, health, etc.)
 ├── frontend/       # React Frontend Application
@@ -33,7 +32,6 @@ multifaceted-ai-app/
 ├── .env.example    # Environment variable template
 ├── docker-compose.yml # Local Docker setup
 └── README.md       # This file
-```
 
 ## Setup Instructions (Local Development)
 
